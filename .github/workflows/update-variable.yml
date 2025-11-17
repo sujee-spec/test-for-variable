@@ -7,7 +7,8 @@ on:
         default: "new-default-value"
 
 permissions:
-  contents: write 
+  contents: write
+  actions: write
 
 jobs:
   update-variable:
