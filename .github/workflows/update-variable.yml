@@ -1,5 +1,3 @@
-name: 🔄 Update Repository Variable
-
 on:
   workflow_dispatch:
     inputs:
@@ -9,7 +7,7 @@ on:
         default: "new-default-value"
 
 permissions:
-  variables: write
+  contents: write 
 
 jobs:
   update-variable:
@@ -24,10 +22,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gh
 
-      - name: 🛠 Set Variable 'bike'
+      - name: 🛠 Authenticate GitHub CLI
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          VALUE="${{ github.event.inputs.new_value }}"
-          echo "Setting variable 'bike' to: $VALUE"
-          gh variable set bike --body "$VALUE"
+          echo "$GITHUB_TOKEN" | gh auth login --with-token
+
+      - name: 🛠 Update Repository Variable 'bike'
+        env:
+          VALUE: ${{ github.event.inputs.new_value }}
+        run: |
+          gh api \
+            -X PATCH \
+            repos/${{ github.repository }}/actions/variables/bike \
+            -f value="$VALUE"
