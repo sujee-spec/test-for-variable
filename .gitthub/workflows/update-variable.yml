@@ -1,0 +1,29 @@
+name: 🔄 Update Repository Variable
+
+# Allow manual triggering from the GitHub UI
+on:
+  workflow_dispatch:
+    inputs:
+      new_value:
+        description: 'The new value for variable bike'
+        required: true
+        default: 'new-default-value'
+
+
+permissions:
+  variables: write
+
+jobs:
+  update-variable:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠 Set Variable 'bike'
+        run: |
+          echo "Setting variable 'bike' to: ${{ inputs.new_value }}"
+          gh variable set bike --body "${{ inputs.new_value }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
