@@ -26,22 +26,22 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y gh
 
-      - name: Fetch latest image name
+      - name: Fetch latest service vm image name
         id: get_image
         run: |
-          IMAGE_NAME=$(gcloud compute images list \
+          SERVICE_VM_IMAGE_NAME=$(gcloud compute images list \
             --project=glomopay-staging-sandbox \
-            --filter="name~'glomopay-service-image'" \
-            --sort-by=~CREATION_TIMESTAMP \
-            --limit=1 \
-            --format="value(name)")
+            --filter="name~'service-vm-'" \
+            --sort-by='~creationTimestamp' \
+            --format="value(name)" \
+            --limit 1)
 
-          echo "IMAGE_NAME=$IMAGE_NAME"
-          echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+          echo "SERVICE_VM_IMAGE_NAME=$SERVICE_VM_IMAGE_NAME"
+          echo "service_vm_image_name=$SERVICE_VM_IMAGE_NAME" >> $GITHUB_OUTPUT
 
       - name: Update Repository Variable 'bike'
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
-          VALUE: ${{ steps.get_image.outputs.image_name }}
+          VALUE: ${{ steps.get_image.outputs.service_vm_image_name }}
         run: |
-          gh variable set bike --body "$VALUE" --repo ${{ github.repository }}
+          gh variable set SERVICE_VM_IMAGE --body "$VALUE" --repo ${{ github.repository }}
