@@ -21,7 +21,7 @@ jobs:
 
       - name: 🛠 Update Repository Variable 'bike'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           VALUE: ${{ github.event.inputs.new_value }}
         run: |
           gh variable set bike --body "$VALUE" --repo ${{ github.repository }}
