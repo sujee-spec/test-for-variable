@@ -29,6 +29,7 @@ jobs:
           VALUE: ${{ github.event.inputs.new_value }}
         run: |
           gh api \
-            -X PATCH \
-            repos/${{ github.repository }}/actions/variables/bike \
+            --method PUT \
+            "repos/${{ github.repository }}/actions/variables/bike" \
+            -f name="bike" \
             -f value="$VALUE"
