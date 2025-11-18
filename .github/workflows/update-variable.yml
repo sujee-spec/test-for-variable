@@ -27,7 +27,7 @@ jobs:
           sudo apt-get install -y gh
 
       - name: Fetch latest service vm image name
-        id: get_image
+        id: get_service_vm_image
         run: |
           SERVICE_VM_IMAGE_NAME=$(gcloud compute images list \
             --project=glomopay-staging-sandbox \
@@ -39,9 +39,29 @@ jobs:
           echo "SERVICE_VM_IMAGE_NAME=$SERVICE_VM_IMAGE_NAME"
           echo "service_vm_image_name=$SERVICE_VM_IMAGE_NAME" >> $GITHUB_OUTPUT
 
-      - name: Update Repository Variable 'bike'
+      - name: Update Repository Variable 'SERVICE_VM_IMAGE'
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
-          VALUE: "projects/glomopay-staging-sandbox/global/images/${{ steps.get_image.outputs.service_vm_image_name }}"
+          VALUE: "projects/glomopay-staging-sandbox/global/images/${{ steps.get_service_vm_image.outputs.service_vm_image_name }}"
         run: |
           gh variable set SERVICE_VM_IMAGE --body "$VALUE" --repo ${{ github.repository }}
+
+      - name: Fetch latest otel image name from gcp
+        id: get_otel_image
+        run: |
+          OTEL_IMAGE_NAME=$(gcloud compute images list \
+            --project=glomopay-staging-sandbox \
+            --filter="name~'otel-collector-'" \
+            --sort-by='~creationTimestamp' \
+            --format="value(name)" \
+            --limit 1)
+
+          echo "OTEL_IMAGE_NAME=$OTEL_IMAGE_NAME"
+          echo "otel_image_name=$OTEL_IMAGE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Update Repository Variable 'OTEL_VM_IMAGE'
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          VALUE: "projects/glomopay-staging-sandbox/global/images/${{ steps.get_otel_image.outputs.otel_image_name }}"
+        run: |
+          gh variable set OTEL_VM_IMAGE --body "$VALUE" --repo ${{ github.repository }}
