@@ -1,27 +1,43 @@
+name: Update GitHub Variable from GCloud
+
 on:
   workflow_dispatch:
-    inputs:
-      new_value:
-        description: "The new value for variable 'bike'"
-        required: true
-        default: "new-default-value"
 
 jobs:
   update-variable:
     runs-on: ubuntu-latest
     
     steps:
-      - name: 📥 Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: 🛠 Install GitHub CLI
+      - name: Install Google Cloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: glomopay-staging-sandbox
+          service_account_key: ${{ secrets.GCLOUD_SA_KEY }}
+
+      - name: Install GitHub CLI
         run: |
           sudo apt-get update
           sudo apt-get install -y gh
 
-      - name: 🛠 Update Repository Variable 'bike'
+      - name: Fetch latest image name
+        id: get_image
+        run: |
+          IMAGE_NAME=$(gcloud compute images list \
+            --project=glomopay-staging-sandbox \
+            --filter="name~'glomopay-service-image'" \
+            --sort-by=~CREATION_TIMESTAMP \
+            --limit=1 \
+            --format="value(name)")
+
+          echo "IMAGE_NAME=$IMAGE_NAME"
+          echo "image_name=$IMAGE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Update Repository Variable 'bike'
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
-          VALUE: ${{ github.event.inputs.new_value }}
+          VALUE: ${{ steps.get_image.outputs.image_name }}
         run: |
           gh variable set bike --body "$VALUE" --repo ${{ github.repository }}
