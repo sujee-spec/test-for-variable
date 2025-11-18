@@ -28,4 +28,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALUE: ${{ github.event.inputs.new_value }}
         run: |
-          gh variable set bike --body $VALUE --repo sujee-spec/test-for-variable
+          gh variable set bike --body "$VALUE" --repo sujee-spec/test-for-variable
