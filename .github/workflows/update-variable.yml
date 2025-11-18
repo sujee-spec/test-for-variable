@@ -6,10 +6,6 @@ on:
         required: true
         default: "new-default-value"
 
-permissions:
-  contents: write
-  actions: write
-
 jobs:
   update-variable:
     runs-on: ubuntu-latest
